@@ -33,7 +33,7 @@ static int toot(char *text) {
   char *envp[] = {"HOME=/", "TERM=linux",
                   "PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin", NULL};
   if (call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC)) {
-    printk(KERN_WARNING "Cannot toot text\n");
+    printk(KERN_WARNING "%s: Cannot toot text\n", DRIVER_NAME);
     return -1;
   }
   return 0;
@@ -44,7 +44,7 @@ static int open(struct inode *inode, struct file *file) {
 
   toot_buf = kmalloc(sizeof(struct toot_buffer), GFP_KERNEL);
   if (toot_buf == NULL) {
-    printk(KERN_WARNING "Cannot alloc memory\n");
+    printk(KERN_WARNING "%s: Cannot alloc memory\n", DRIVER_NAME);
     return -ENOMEM;
   }
   toot_buf->pointer = 0;
@@ -93,7 +93,7 @@ static ssize_t write(struct file *file, const char __user *buf, size_t count,
       // read data from user process
       if (raw_copy_from_user(toot_buf->buffer + toot_buf->pointer,
                              buf + processed_count, read_size) != 0) {
-      printk(KERN_WARNING "Cannot copy data from buffer\n");
+      printk(KERN_WARNING "%s: Cannot copy data from buffer\n", DRIVER_NAME);
       return -EFAULT;
       }
       toot_buf->buffer[toot_buf->pointer + read_size] = '\0';
@@ -130,7 +130,7 @@ static ssize_t write(struct file *file, const char __user *buf, size_t count,
       processed_count += read_size;
     }
   } else {
-    printk(KERN_WARNING "Cannot get toot buffer\n");
+    printk(KERN_WARNING "%s: Cannot get toot buffer\n", DRIVER_NAME);
     return -EFAULT;
   }
   return count;
@@ -146,14 +146,14 @@ struct file_operations fops = {
 
 static int dev_mastodon_init(void) {
   // init
-  printk(KERN_INFO "Starting dev_mastodon !\n");
+  printk(KERN_INFO "%s: Starting dev_mastodon !\n", DRIVER_NAME);
   register_chrdev(DRIVER_MAJOR, DRIVER_NAME, &fops);
   return 0;
 }
 
 static void dev_mastodon_exit(void) {
   // exit
-  printk(KERN_INFO "Removing dev_mastodon\n");
+  printk(KERN_INFO "%s: Removing dev_mastodon\n", DRIVER_NAME);
   unregister_chrdev(DRIVER_MAJOR, DRIVER_NAME);
 }
 
