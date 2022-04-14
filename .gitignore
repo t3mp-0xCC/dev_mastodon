@@ -1,1 +1,9 @@
 compile_flags.txt
+*.o
+*.mod
+*.mod.c
+*.mod.o
+*.symvers
+*.order
+*.ko
+*.cmd
