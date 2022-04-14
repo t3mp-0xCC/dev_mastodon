@@ -15,6 +15,7 @@ MODULE_LICENSE("MIT");
 MODULE_DESCRIPTION("toot from /dev/mastodon");
 
 #define DRIVER_NAME "DEV_MASTODON"
+#define DRIVER_MAJOR 62
 #define MAX_TOOT_LENGTH 500
 #define TOOT_BUFFER_SIZE MAX_TOOT_LENGTH * 6
 #define SCRIPT_PATH "/usr/local/bin/toot.sh"
@@ -146,12 +147,14 @@ struct file_operations fops = {
 static int dev_mastodon_init(void) {
   // init
   printk(KERN_INFO "Starting dev_mastodon !\n");
+  register_chrdev(DRIVER_MAJOR, DRIVER_NAME, &fops);
   return 0;
 }
 
 static void dev_mastodon_exit(void) {
   // exit
   printk(KERN_INFO "Removing dev_mastodon\n");
+  unregister_chrdev(DRIVER_MAJOR, DRIVER_NAME);
 }
 
 module_init(dev_mastodon_init);

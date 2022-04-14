@@ -17,7 +17,7 @@ load:
 	$(INSMOD) dev_mastodon.ko
 	$(MKNOD) /dev/mastodon c 62 1
 	$(CHMOD) 222 /dev/mastodon
-	$(CP) toot.sh /usr/local/bin/
+	$(CP) toot.sh /usr/local/bin
 	$(CHMOD) +x /usr/local/bin/toot.sh
 
 unload:
