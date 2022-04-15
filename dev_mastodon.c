@@ -12,13 +12,13 @@
 #include <linux/kmod.h>
 
 MODULE_LICENSE("MIT");
-MODULE_DESCRIPTION("toot from /dev/mastodon");
+MODULE_DESCRIPTION("mastodon as device");
 
 #define DRIVER_NAME "DEV_MASTODON"
 #define DRIVER_MAJOR 62
 #define MAX_TOOT_LENGTH 500
 #define TOOT_BUFFER_SIZE MAX_TOOT_LENGTH * 6
-#define SCRIPT_PATH "/usr/local/bin/toot.sh"
+#define TOOT_SCRIPT_PATH "/usr/local/bin/toot.sh"
 
 struct toot_buffer {
   // buffer for the toot text
@@ -29,7 +29,7 @@ struct toot_buffer {
 
 static int toot(char *text) {
   // exec toot script when fops.release
-  char *argv[] = {SCRIPT_PATH, text, NULL};
+  char *argv[] = {TOOT_SCRIPT_PATH, text, NULL};
   char *envp[] = {"HOME=/", "TERM=linux",
                   "PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin", NULL};
   if (call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC)) {
@@ -67,9 +67,9 @@ static int release(struct inode *inode, struct file *file) {
   return 0;
 }
 
-static ssize_t dummy_read(struct file *file, char __user *buf, size_t count,
+static ssize_t read(struct file *file, char __user *buf, size_t count,
                           loff_t *f_pos) {
-  // /dev/mastodon is not readable device...
+
   return 0;
 }
 
@@ -140,7 +140,7 @@ struct file_operations fops = {
   // define operations on /dev/mastodon
   .open = open,
   .release = release,
-  .read = dummy_read,
+  .read = read,
   .write = write,
 };
 
