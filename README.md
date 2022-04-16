@@ -1,5 +1,5 @@
 # /dev/mastodon
-mastodon as device
+mastodon as device  
 Referring to https://github.com/PG-MANA/dev_twitter
 
 ## Build & Install
