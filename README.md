@@ -11,7 +11,7 @@ Referring to https://github.com/PG-MANA/dev_twitter
 1. Edit `dev_mastodon.conf`
 ```
 INSTANCE="example.com"
-VIS="public"# or unlisted
+VIS="public"
 TOKEN="PATSE YOUR ACCESS TOKEN HERE !"
 ```
 
