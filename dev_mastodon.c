@@ -32,7 +32,7 @@ struct toot_buffer {
 struct content_buffer {
   // buffer for the content of instance
   char buffer[TOOT_BUFFER_SIZE * MAX_CONTENT];
-}
+};
 
 static int toot(char *text) {
   // exec toot script when fops.release
@@ -85,7 +85,6 @@ static int release(struct inode *inode, struct file *file) {
       toot(toot_buf->buffer);
     }
     kfree(toot_buf);
-    kfree(content_buf);
     file->private_data = NULL;
   }
   return 0;
@@ -96,7 +95,6 @@ static ssize_t read(struct file *file, char __user *buf, size_t count,
   struct content_buffer *content_buf;
 
   printk(KERN_DEBUG "%s: read called\n", DRIVER_NAME);
-  content_buf = file->private_data;
 
   return 0;
 }
