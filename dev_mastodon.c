@@ -18,7 +18,9 @@ MODULE_DESCRIPTION("mastodon as device");
 #define DRIVER_MAJOR 62
 #define MAX_TOOT_LENGTH 500
 #define TOOT_BUFFER_SIZE MAX_TOOT_LENGTH * 6
+#define MAX_CONTENT 40
 #define TOOT_SCRIPT_PATH "/usr/local/bin/toot.sh"
+#define CONTENT_SCRIPT_PATH "/usr/local/bin/get_content.sh"
 
 struct toot_buffer {
   // buffer for the toot text
@@ -26,6 +28,11 @@ struct toot_buffer {
   // pseudo-pointer to char in buffer
   unsigned int pointer;
 };
+
+struct content_buffer {
+  // buffer for the content of instance
+  char buffer[TOOT_BUFFER_SIZE * MAX_CONTENT];
+}
 
 static int toot(char *text) {
   // exec toot script when fops.release
@@ -39,11 +46,26 @@ static int toot(char *text) {
   return 0;
 }
 
-static int open(struct inode *inode, struct file *file) {
-                struct toot_buffer *toot_buf;
+static int get_content(void) {
+  // get contents from instance
+  char *argv[] = {CONTENT_SCRIPT_PATH, NULL};
+  char *envp[] = {"HOME=/", "TERM=linux",
+                  "PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin", NULL};
+  if (call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC)) {
+    printk(KERN_WARNING "%s: Cannot get content\n", DRIVER_NAME);
+    return -1;
+  }
+  return 0;
+}
 
+static int open(struct inode *inode, struct file *file) {
+  struct toot_buffer *toot_buf;
+  struct content_buffer *content_buf;
+
+  printk(KERN_DEBUG "%s: open called\n", DRIVER_NAME);
   toot_buf = kmalloc(sizeof(struct toot_buffer), GFP_KERNEL);
-  if (toot_buf == NULL) {
+  content_buf = kmalloc(sizeof(struct toot_buffer), GFP_KERNEL);
+  if (toot_buf == NULL || content_buf == NULL) {
     printk(KERN_WARNING "%s: Cannot alloc memory\n", DRIVER_NAME);
     return -ENOMEM;
   }
@@ -55,6 +77,7 @@ static int open(struct inode *inode, struct file *file) {
 static int release(struct inode *inode, struct file *file) {
   struct toot_buffer *toot_buf;
 
+  printk(KERN_DEBUG "%s: release called\n", DRIVER_NAME);
   toot_buf = file->private_data;
   if(toot_buf) {
     if (toot_buf->pointer > 0) {
@@ -62,6 +85,7 @@ static int release(struct inode *inode, struct file *file) {
       toot(toot_buf->buffer);
     }
     kfree(toot_buf);
+    kfree(content_buf);
     file->private_data = NULL;
   }
   return 0;
@@ -69,6 +93,10 @@ static int release(struct inode *inode, struct file *file) {
 
 static ssize_t read(struct file *file, char __user *buf, size_t count,
                           loff_t *f_pos) {
+  struct content_buffer *content_buf;
+
+  printk(KERN_DEBUG "%s: read called\n", DRIVER_NAME);
+  content_buf = file->private_data;
 
   return 0;
 }
@@ -81,6 +109,7 @@ static ssize_t write(struct file *file, const char __user *buf, size_t count,
   char char_buf;
   unsigned int processed_count;
 
+  printk(KERN_DEBUG "%s: write called\n", DRIVER_NAME);
   toot_buf = file->private_data;
   if (toot_buf) {
     processed_count = 0;
