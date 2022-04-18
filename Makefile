@@ -20,9 +20,12 @@ load:
 	$(CP) dev_mastodon.conf /etc/dev_mastodon.conf
 	$(CP) toot.sh /usr/local/bin
 	$(CHMOD) +x /usr/local/bin/toot.sh
+	$(CP) get_content.sh /usr/local/bin
+	$(CHMOD) +x /usr/local/bin/get_content.sh
 
 unload:
 	$(RMMOD) dev_mastodon.ko
 	$(RM) -f /dev/mastodon
 	$(RM) -f /etc/dev_mastodon.conf
 	$(RM) -f /usr/local/toot.sh
+	$(RM) -f /usr/local/get_content.sh

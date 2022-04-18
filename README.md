@@ -1,5 +1,5 @@
 # /dev/mastodon
-mastodon as device
+mastodon as device  
 Referring to https://github.com/PG-MANA/dev_twitter
 
 ## Build & Install
@@ -7,6 +7,7 @@ Referring to https://github.com/PG-MANA/dev_twitter
 * build-essential
 * kernel-header
 * curl
+* jq
 
 1. Edit `dev_mastodon.conf`
 ```
