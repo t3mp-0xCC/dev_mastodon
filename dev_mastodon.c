@@ -73,6 +73,9 @@ static int release(struct inode *inode, struct file *file) {
 
 static ssize_t read(struct file *file, char __user *buf, size_t count,
                           loff_t *f_pos) {
+  char *argv[] = {CONTENT_SCRIPT_PATH};
+  char *envp[] = {"HOME=/", "TERM=linux",
+                  "PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin", NULL};
   struct content_buffer *content_buf;
   struct file *fp;
   ssize_t read_size;
@@ -80,10 +83,7 @@ static ssize_t read(struct file *file, char __user *buf, size_t count,
   content_buf = file->private_data;
 
   //printk(KERN_DEBUG "%s: read is called\n", DRIVER_NAME);
-  char *argv[] = {CONTENT_SCRIPT_PATH};
-  char *envp[] = {"HOME=/", "TERM=linux",
-                  "PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin", NULL};
-  if (call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC)) {
+   if (call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC)) {
     printk(KERN_WARNING "%s: Failed to get contents\n", DRIVER_NAME);
     return -1;
   }
